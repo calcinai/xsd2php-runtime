@@ -67,7 +67,8 @@ class XmlSchemaDateHandler implements SubscribingHandlerInterface
 
     }
 
-    public function deserializeDateIntervalXml(XmlDeserializationVisitor $visitor, $data, array $type){
+    public function deserializeDateIntervalXml(XmlDeserializationVisitor $visitor, $data, array $type)
+    {
         $attributes = $data->attributes('xsi', true);
         if (isset($attributes['nil'][0]) && (string) $attributes['nil'][0] === 'true') {
             return null;
