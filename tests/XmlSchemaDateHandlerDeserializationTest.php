@@ -91,13 +91,15 @@ class XmlSchemaDateHandlerDeserializationTest extends TestCase
             $this->assertEquals($expected['f'], $deserialized->f);
         }
         $this->assertEquals($expected['s'], $deserialized->s);
+        $this->assertEquals((int) !empty($expected['invert']), $deserialized->invert);
     }
 
     public function getDeserializeDateInterval()
     {
         return [
             ['P0Y0M0DT3H5M7.520S', ['s' => 7, 'f' => 0.52]],
-            ['P0Y0M0DT3H5M7S', ['s' => 7, 'f' => 0]]
+            ['P0Y0M0DT3H5M7S', ['s' => 7, 'f' => 0]],
+            ['-P0Y0M0DT3H5M7S', ['s' => 7, 'f' => 0, 'invert' => 1]],
         ];
     }
 
@@ -116,36 +118,5 @@ class XmlSchemaDateHandlerDeserializationTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $element = new \SimpleXMLElement("<Date>2015-01-01T</Date>");
         $this->handler->deserializeDate($this->visitor, $element, [], $this->context);
-    }
-
-    /**
-     * @dataProvider getDeserializeDateInterval
-     * @param string        $interval
-     * @param \DateInterval $expected
-     */
-    public function testDeserializeDateInterval(string $interval, \DateInterval $expected)
-    {
-        $element = new \SimpleXMLElement("<DateInterval>$interval</DateInterval>");
-        $deserialized = $this->handler->deserializeDateIntervalXml($this->visitor, $element, []);
-        $this->assertEquals($expected, $deserialized);
-    }
-
-    public function getDeserializeDateInterval()
-    {
-        $interval1 = new \DateInterval('PT1M23S');
-        $interval2 = new \DateInterval('P2DT3H');
-
-        $interval1Invert = clone $interval1;
-        $interval1Invert->invert = 1;
-
-        $interval2Invert = clone $interval2;
-        $interval2Invert->invert = 1;
-
-        return [
-            ['PT1M23S', $interval1],
-            ['-PT1M23S', $interval1Invert],
-            ['P2DT3H', $interval2],
-            ['-P2DT3H', $interval2Invert],
-        ];
     }
 }

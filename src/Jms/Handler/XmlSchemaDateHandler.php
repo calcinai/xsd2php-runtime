@@ -183,17 +183,24 @@ class XmlSchemaDateHandler implements SubscribingHandlerInterface
         return $datetime;
     }
 
-    private function createDateInterval($interval){
+    private function createDateInterval(string $interval)
+    {
         $f = 0.0;
         if (preg_match('~\.\d+~',$interval,$match)) {
             $interval = str_replace($match[0], "", $interval);
             $f = (float)$match[0];
         }
+
+        // Accept negative intervals like -PT1M23S.  Safe to assume that "-" doesn't exist elsewhere in a valid interval spec.
+        $interval = str_replace('-', '', $interval, $minusCount);
+
         $di = new \DateInterval($interval);
         // milliseconds are only available from >=7.1
         if(isset($di->f)){
             $di->f= $f;
         }
+        // Invert if a negative sign was found
+        $di->invert = ($minusCount > 0) ? 1 : 0;
 
         return $di;
     }
